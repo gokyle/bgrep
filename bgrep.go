@@ -17,17 +17,17 @@ func errorf(msg string, args ...interface{}) {
 var searchBin []byte
 
 func searchFile(path string) {
-		fileData, err := ioutil.ReadFile(path)
-		if err != nil {
-			errorf("Failed to open %s: %v\n", path, err)
-		} else if i := bytes.Index(fileData, searchBin); i != -1 {
-			fmt.Printf("%s: found at byte %d\n", path, i)
-		} else {
-			fmt.Printf("%s: not found\n", path)
-		}
+	fileData, err := ioutil.ReadFile(path)
+	if err != nil {
+		errorf("Failed to open %s: %v\n", path, err)
+	} else if i := bytes.Index(fileData, searchBin); i != -1 {
+		fmt.Printf("%s: found at byte %d\n", path, i)
+	} else if showAll {
+		fmt.Printf("%s: not found\n", path)
+	}
 }
 
-func walker (path string, info os.FileInfo, err error) error {
+func walker(path string, info os.FileInfo, err error) error {
 	if info.IsDir() {
 		return nil
 	}
@@ -35,9 +35,14 @@ func walker (path string, info os.FileInfo, err error) error {
 	return nil
 }
 
+var showAll bool
+
 func main() {
-	recurse := flag.Bool("r", false, "recursivel search")
+	all := flag.Bool("a", false, "show all results")
+	recurse := flag.Bool("r", false, "recursive search")
 	flag.Parse()
+
+	showAll = *all
 
 	if flag.NArg() < 2 {
 		return
